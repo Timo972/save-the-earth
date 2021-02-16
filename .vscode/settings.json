@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "*.properties": true,
+        "**/.tjbackup": true,
+        "*$py.class": true,
+        "ajython.jar": true
+    }
+}
