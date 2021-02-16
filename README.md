@@ -1,7 +1,7 @@
 # Save The Earth TigerJython Game
 
 ## Credits
- - Vane (helped with designs)
+ - [Vane](https://discordapp.com/users/429608458233577474 "Discord Profile") (helped with designs)
 
 ## Run the game (only windows)
  1. Clone this repo
