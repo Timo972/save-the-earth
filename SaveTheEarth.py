@@ -13,6 +13,7 @@ from Vector2 import *
 from GameObject import *
 from VectorMath import *
 from Effect import *
+from Button import *
 
 DEBUG = False
 PROD = True
@@ -46,6 +47,7 @@ EXPLOSION_IMAGE = None
 #BACKGROUND_IMAGE = None
 ITEM_IMAGE = None
 BUBBLE_IMAGE = None
+STARTBTN_IMAGE = None
 LOADING_IMAEG = getImage("images/loading.png")
 
 BACKGROUND_SOUND = None
@@ -87,6 +89,7 @@ def init():
     global ITEM_IMAGE
     global BUBBLE_IMAGE
     global LOADING_IMAEG
+    global STARTBTN_IMAGE
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -112,6 +115,7 @@ def init():
     #BACKGROUND_IMAGE = getImage("images/bg.gif")
     ITEM_IMAGE = getImage("images/item.png")
     BUBBLE_IMAGE = getImage("images/bubble_small.png")
+    STARTBTN_IMAGE = getImage("images/start-btn-small.png")
     
     #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
     #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
@@ -143,8 +147,13 @@ def preloadSounds():
     #soundsystem.setVolume(1000)
     return
 
-def main():
+def startGame():
     global inGame
+    setStatusText("{} gestartet".format(TITLE))
+    inGame = True
+
+def main():
+    #global inGame
 
     # window setup
     if PROD or STANDALONE:
@@ -170,7 +179,12 @@ def main():
     # start the game
     setStatusText("Willkommen in {}".format(TITLE))
     generatePlayer()
-    inGame = True
+    
+    # create play button
+
+    Button(STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
+
+    #inGame = True
     
 def onExit():
     print("exiting")
@@ -371,6 +385,9 @@ def drawEffects():
         else:
             del effectList[i]
 
+def drawHud():
+    for button in Button.all:
+        button.draw()
 
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
@@ -379,18 +396,34 @@ def checkAbilities():
     for ability in playerAblilities:
         if ability[1] + ability[2] < time.clock():
             clearItemAffect(ability[0])
+
+def processHudMouseClick():
+    for button in Button.all:
+        print("checking if button is focused")
+        print("MousePos: {0} {1}".format(mousePos.x, mousePos.y))
+        print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
+        if button.focused(mousePos):
+            print("clicked button")
+            button.onClick()
         
 def tick():
     clear()
-    if playerObject.valid:
+
+    if playerObject.valid and inGame:
         checkAbilities()
         addGameObject()
         addItem()
+
     image(BACKGROUND_IMAGE, MIN_X, MAX_Y)
     #image(BACKGROUND_IMAGE, 0, 0)
-    drawPlayer()
-    drawGameObjects()
-    drawEffects()
+
+    if inGame:
+        drawPlayer()
+        drawGameObjects()
+        drawEffects()
+    else:
+        drawHud()
+
     repaint()
 
 def mousePressed(x,y):
@@ -398,6 +431,8 @@ def mousePressed(x,y):
     global mouseDown 
     mousePos = Vector2(x, y)
     mouseDown = True
+    if not inGame:
+        processHudMouseClick()
     
 def mouseReleased(x,y):
     global mouseDown 
@@ -409,6 +444,6 @@ def mouseDrag(x, y):
 
 main()
 
-while isinstance(playerObject, GameObject) and inGame:
+while isinstance(playerObject, GameObject):
     delay(20)
     tick()
