@@ -21,8 +21,8 @@
  - [ ] add some "bosses" with custom design, like carrot head or 5head
  - [ ] implement game over screen
  - [ ] add syringe item for one time immunity with longer reset time
- - [ ] implement some custom buttons with hover effect for menus
- - [ ] improve hud navigation, include key events (f.e. ESC to go to main)
+ - [x] implement some custom buttons with hover effect for menus
+ - [x] improve hud navigation, include key events (f.e. ESC to go to main)
  - [ ] pause menu accessable with SPACE
  ## Features that are "useless"
  - [ ] global scoreboard with golang iris as api backend
