@@ -10,11 +10,15 @@ import platform
 from java.applet.Applet import newAudioClip
 from java import io
 
+# eigene Klassen
 from Vector2 import *
 from GameObject import *
 from VectorMath import *
 from Effect import *
 from Button import *
+
+# functionen
+from Timer import *
 
 DEBUG = False
 PROD = True
@@ -51,7 +55,7 @@ BUBBLE_IMAGE = None
 STARTBTN_IMAGE = None
 SETTINGBTN_IMAGE = None
 BACKBTN_IMAGE = None
-LOADING_IMAEG = getImage("images/loading.png")
+LOADING_IMAGE = getImage("images/loading.png")
 
 NUMBER_IMAGES = None
 
@@ -61,6 +65,7 @@ ITEMCOLLECT_SOUND = None
 
 EXPLOSION_EFFECT = None
 ITEMCOLLECT_EFFECT = None
+ITEMUSED_SOUND = None
 
 HUD_CLICK_TIMEOUT = 0.3 # in seconds
 
@@ -112,7 +117,7 @@ def init():
     #global BACKGROUND_IMAGE
     global ITEM_IMAGE
     global BUBBLE_IMAGE
-    global LOADING_IMAEG
+    global LOADING_IMAGE
     global STARTBTN_IMAGE
     global SETTINGBTN_IMAGE
     global BACKBTN_IMAGE
@@ -121,6 +126,7 @@ def init():
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
     global ITEMCOLLECT_SOUND
+    global ITEMUSED_SOUND
 
     global EXPLOSION_EFFECT
     global ITEMCOLLECT_EFFECT
@@ -131,7 +137,7 @@ def init():
     move(50,50)
     text("Lade {}...".format(TITLE))
 
-    image(LOADING_IMAEG, -200, 700)
+    image(LOADING_IMAGE, -200, 700)
 
     repaint()
 
@@ -147,9 +153,11 @@ def init():
     BACKBTN_IMAGE = getImage("images/btn-back.png")
 
     NUMBER_IMAGES = []
-    for i in range(9):
+    for i in range(10):
+        print("loading number {}".format(i))
         img = getImage("images/number_{}.png".format(i))
         NUMBER_IMAGES.append(img)
+    NUMBER_IMAGES.append(getImage("images/dp.png"))
     
     #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
     #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
@@ -157,29 +165,12 @@ def init():
     BACKGROUND_SOUND = loadSound("sounds/sound.WAV")
     EXPLOSION_SOUND = loadSound("sounds/explosion.wav")
     ITEMCOLLECT_SOUND = loadSound("sounds/itemcollect.WAV")
+    ITEMUSED_SOUND = loadSound("sounds/gotshot.WAV")
 
     EXPLOSION_EFFECT = Effect(None, EXPLOSION_IMAGE, EXPLOSION_SOUND)
     ITEMCOLLECT_EFFECT = Effect(None, None, ITEMCOLLECT_SOUND)
-    
-    preloadSounds()
 
     return True
-
-def preloadSounds():
-    # TODO: set Volume to 0 and play every sound one time that its loaded
-    BACKGROUND_SOUND.play()
-    #soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
-    #soundsystem.setVolume(100)
-    #soundsystem.play()
-    #soundsystem.openStereoPlayer(EXPLOSION_SOUND, 44100)
-    #soundsystem.setVolume(100)
-    #soundsystem.play()
-    #soundsystem.openStereoPlayer(ITEMCOLLECT_SOUND, 44100)
-    #soundsystem.setVolume(100)
-    #soundsystem.play()
-    delay(1000)
-    #soundsystem.setVolume(1000)
-    return
 
 def openSettings():
     global hudPage
@@ -202,6 +193,7 @@ def startGame():
 
     setStatusText("{} gestartet".format(TITLE))
     inGame = True
+    beginTimer()
     print("started game")
 
 def main():
@@ -219,12 +211,6 @@ def main():
     init()
 
     print("Running {0} with python version {1}".format(TITLE, platform.python_version()))
-    
-    # if in production play background sound (anoying when developing)
-    #if PROD:
-    #    soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
-    #    soundsystem.setVolume(600)
-    #    soundsystem.playLoop()
 
     BACKGROUND_SOUND.play()
         
@@ -246,11 +232,6 @@ def main():
     
 def onExit():
     print("exiting")
-    # try except not working with soundsystem :C
-    #try:
-    #    soundsystem.stop()
-    #except e:
-    #    print("no sound played")
     System.exit(0)
     
 def generatePlayer():
@@ -273,14 +254,12 @@ def diePlayer(gameObject):
     EXPLOSION_EFFECT.play()
     playerObject.destroy()
 
-    #if PROD:
-    #    if soundsystem.isPlayerValid() and soundsystem.isPlaying():
-    #        soundsystem.stop()
+    survivedTime = endTimer()
 
     hudPage = Hud.gameover
     inGame = False
 
-    setStatusText("Die Erde wurde zerstoert")
+    setStatusText("Die Erde wurde zerstoert, du hast {} Sekunden ueberlebt".format(survivedTime/1000))
 
 def setInvincible(invincible):
     global isInvincible
@@ -291,6 +270,7 @@ def setInvincible(invincible):
         isInvincible = 0
 
 def clearItemAffect(item):
+    ITEMUSED_SOUND.play()
     for i, o in enumerate(playerAblilities):
         if o[0] == item:
             del playerAblilities[i]
@@ -462,9 +442,6 @@ def checkAbilities():
 def processHudMouseClick():
     global justClicked
     for button in Button.all:
-        # print("checking if button is focused")
-        # print("MousePos: {0} {1}".format(mousePos.x, mousePos.y))
-        # print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
         if button.focused(hudPage, mousePos) and justClicked + HUD_CLICK_TIMEOUT < time.clock():
             justClicked = time.clock()
             button.onClick()
@@ -483,6 +460,10 @@ def processKeyboardHit():
                 startGame()
         elif key == Key.Space and inGame:
             isPaused = not isPaused
+            if isPaused:
+                pauseTimer()
+            else:
+                resumeTimer()
             print("paused game: {}".format(isPaused))
         
 def tick():
@@ -494,12 +475,12 @@ def tick():
         addItem()
 
     image(BACKGROUND_IMAGE, MIN_X, MAX_Y)
-    #image(BACKGROUND_IMAGE, 0, 0)
 
     if inGame:
         drawPlayer()
         drawGameObjects()
         drawEffects()
+        drawTimer(NUMBER_IMAGES)
     else:
         drawHud()
         

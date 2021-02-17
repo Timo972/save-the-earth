@@ -1,7 +1,7 @@
 # Save The Earth TigerJython Game
 
 ## Credits
- - [Vane](https://discordapp.com/users/429608458233577474 "Discord Profile") (helped with designs)
+ - [Vane](https://discordapp.com/users/429608458233577474 "Discord Profile") (helped out with designs)
 
 ## Run the game (only windows)
  1. Clone this repo
@@ -16,7 +16,7 @@
  - [ ] create start menu
  - [x] create loading screen
  - [x] implement preloading of sounds
- - [ ] create timer with time survived
+ - [x] create timer with time survived
  - [ ] multiply asteriods spawn rate with time survived
  - [ ] add some "bosses" with custom design, like carrot head or 5head
  - [ ] implement game over screen
@@ -24,5 +24,8 @@
  - [x] implement some custom buttons with hover effect for menus
  - [x] improve hud navigation, include key events (f.e. ESC to go to main)
  - [x] pause menu accessable with SPACE
+ - [ ] balance system based on seconds survived
+ - [ ] shop for new skins
+ - [ ] button hover designs and hover sound
  ## Features that are "useless"
  - [ ] global scoreboard with golang iris as api backend
