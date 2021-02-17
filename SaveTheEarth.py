@@ -1,6 +1,7 @@
 from java.lang import System
 from gpanel import *
 from random import *
+from enum import Enum
 import time
 import platform
 
@@ -48,6 +49,7 @@ EXPLOSION_IMAGE = None
 ITEM_IMAGE = None
 BUBBLE_IMAGE = None
 STARTBTN_IMAGE = None
+SETTINGBTN_IMAGE = None
 LOADING_IMAEG = getImage("images/loading.png")
 
 BACKGROUND_SOUND = None
@@ -72,6 +74,13 @@ mouseDown = False
 
 isInvincible = 0
 inGame = False
+# 0 is main menu 1 is settings 2 is scoreboard
+class Hud(Enum):
+    main = 0
+    settings = 1
+    scoreboard = 2
+
+hudPage = 0
 
 def loadSound(fileName):
     url = io.File(fileName).toURL()
@@ -90,6 +99,7 @@ def init():
     global BUBBLE_IMAGE
     global LOADING_IMAEG
     global STARTBTN_IMAGE
+    global SETTINGBTN_IMAGE
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -116,6 +126,7 @@ def init():
     ITEM_IMAGE = getImage("images/item.png")
     BUBBLE_IMAGE = getImage("images/bubble_small.png")
     STARTBTN_IMAGE = getImage("images/start-btn-small.png")
+    SETTINGBTN_IMAGE = getImage("images/btn-settings.png")
     
     #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
     #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
@@ -146,6 +157,11 @@ def preloadSounds():
     delay(1000)
     #soundsystem.setVolume(1000)
     return
+
+def openSettings():
+    global hudPage
+    print("open settings")
+    hudPage = 1
 
 def startGame():
     global inGame
@@ -182,7 +198,8 @@ def main():
     
     # create play button
 
-    Button(STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
+    Button(Hud.main, STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
+    Button(Hud.main, SETTINGBTN_IMAGE, None, Vector2(450, 50), openSettings)
 
     #inGame = True
     
@@ -387,7 +404,7 @@ def drawEffects():
 
 def drawHud():
     for button in Button.all:
-        button.draw()
+        button.draw(hudPage)
 
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
@@ -399,11 +416,10 @@ def checkAbilities():
 
 def processHudMouseClick():
     for button in Button.all:
-        print("checking if button is focused")
-        print("MousePos: {0} {1}".format(mousePos.x, mousePos.y))
-        print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
-        if button.focused(mousePos):
-            print("clicked button")
+        # print("checking if button is focused")
+        # print("MousePos: {0} {1}".format(mousePos.x, mousePos.y))
+        # print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
+        if button.focused(hudPage, mousePos):
             button.onClick()
         
 def tick():
