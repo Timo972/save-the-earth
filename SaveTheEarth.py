@@ -275,7 +275,7 @@ def collectItem(gameObject):
 def generateObject():
     print("generateObject")
     
-    startSide = randrange(0, 3)
+    startSide = randint(0, 3)
     
     startX = 0
     startY = 0
@@ -287,18 +287,18 @@ def generateObject():
     if startSide <= 1:
         startX = MIN_X if startSide < 1 else MAX_X
         endX = MAX_X if startSide < 1 else MIN_X
-        startY = randrange(MIN_Y, MAX_Y)
-        endY = randrange(MIN_Y, MAX_Y)
+        startY = randint(MIN_Y, MAX_Y)
+        endY = randint(MIN_Y, MAX_Y)
     else:
         startY = MIN_Y if startSide > 2 else MAX_Y
         endY = MAX_Y if startSide > 2 else MIN_Y
-        startX = randrange(MIN_X, MAX_X)
-        endX = randrange(MIN_X, MAX_X)
+        startX = randint(MIN_X, MAX_X)
+        endX = randint(MIN_X, MAX_X)
     
     # TODO: randomize size between MAX_OBJECT_SIZE and MIN_OBJECT_SIZE
     size = 20
     
-    colorIdx = randrange(0, len(OBJECT_COLORS))
+    colorIdx = randint(0, len(OBJECT_COLORS))
     color = OBJECT_COLORS[colorIdx]
 
     start = Vector2(startX, startY)
@@ -326,9 +326,9 @@ def addItem():
         return
 
     lastAddedItem = time.clock()
-    itemEffect = randrange(0, 1)
+    itemEffect = randint(0, 1)
 
-    randPos = Vector2(randrange(MIN_X, MAX_X), randrange(MIN_Y, MAX_X))
+    randPos = Vector2(randint(MIN_X, MAX_X), randint(MIN_Y, MAX_X))
     itemObject = GameObject(2, randPos, None, ITEM_SIZE, "yellow", ITEM_IMAGE, True, False, itemEffect)
 
     gameObjectList.append(itemObject)
