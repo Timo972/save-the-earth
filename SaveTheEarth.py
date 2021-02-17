@@ -1,3 +1,4 @@
+#from javax.swing import JFrame, JMenuBar, JMenu, JMenuItem, JTextField, ImageIcon, JButton
 from java.lang import System
 from gpanel import *
 from random import *
@@ -52,6 +53,7 @@ EXPLOSION_IMAGE = None
 #BACKGROUND_IMAGE = None
 ITEM_IMAGE = None
 BUBBLE_IMAGE = None
+PAUSE_IMAGE = None
 STARTBTN_IMAGE = None
 SETTINGBTN_IMAGE = None
 BACKBTN_IMAGE = None
@@ -117,6 +119,7 @@ def init():
     #global BACKGROUND_IMAGE
     global ITEM_IMAGE
     global BUBBLE_IMAGE
+    global PAUSE_IMAGE
     global LOADING_IMAGE
     global STARTBTN_IMAGE
     global SETTINGBTN_IMAGE
@@ -151,6 +154,7 @@ def init():
     STARTBTN_IMAGE = getImage("images/start-btn-small.png")
     SETTINGBTN_IMAGE = getImage("images/btn-settings.png")
     BACKBTN_IMAGE = getImage("images/btn-back.png")
+    PAUSE_IMAGE = getImage("images/pause.png")
 
     NUMBER_IMAGES = []
     for i in range(10):
@@ -449,6 +453,7 @@ def processHudMouseClick():
 def processKeyboardHit():
     global hudPage
     global isPaused
+    
     if kbhit():
         key = getKeyCode()
         print("keyboard hit {}".format(key))
@@ -483,6 +488,9 @@ def tick():
         drawTimer(NUMBER_IMAGES)
     else:
         drawHud()
+
+    if isPaused:
+        image(PAUSE_IMAGE, 250-60, 250+60)
         
     processKeyboardHit()
 

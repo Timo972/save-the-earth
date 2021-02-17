@@ -27,5 +27,7 @@
  - [ ] balance system based on seconds survived
  - [ ] shop for new skins
  - [ ] button hover designs and hover sound
- ## Features that are "useless"
+ - [ ] fix coordinates (messed up with window(0, MAX_X, MAX_Y, 0), now have to be changed when correcting to window(0, MAX_X, 0, MAX_Y))
+ ## Features that are planned when school project is finished
  - [ ] global scoreboard with golang iris as api backend
+ - [ ] use JFrame panel
