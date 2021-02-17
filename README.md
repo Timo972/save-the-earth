@@ -10,7 +10,7 @@
 
 ## TODO
  - [x] refactor player drawing to use new obj.draw feature
- - [ ] implement flickering object possibility
+ - [x] implement flickering object possibility
  - [ ] create ranklist
  - [ ] implement heart system
  - [ ] create start menu

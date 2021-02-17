@@ -18,7 +18,7 @@ class GameObject:
         self.static = static
         self.data = data
         self.flickering = flickering
-        self.fickerState = True
+        self.flickerState = True
         self.image = image
         print("created game object with pos: {0}, {1}".format(start.x,start.y))
         self.pos = start
@@ -30,6 +30,12 @@ class GameObject:
     def draw(self):
         move(self.pos.x, self.pos.y)
         setColor(self.color)
+
+        if self.flickering and not self.flickerState:
+            self.flickerState = True
+            return
+        elif self.flickering and self.flickerState:
+            self.flickerState = False
 
         if not self.image is None:
             image(self.image, self.pos.x - self.size, self.pos.y + self.size)
