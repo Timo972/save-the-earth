@@ -84,6 +84,11 @@ def init():
     addStatusBar(STATUS_H)
     setStatusText("Lade {}...".format(TITLE))
 
+    move(50,50)
+    text("Lade {}...".format(TITLE))
+
+    repaint()
+
     OBJECT_IMAGE = getImage("images/komet.png")
     PLAYER_IMAGE = getImage("images/player_40.png")
     BACKGROUND_IMAGE = getImage("images/anotherbg.jpg")
@@ -105,24 +110,37 @@ def init():
 
 def preloadSounds():
     # TODO: set Volume to 0 and play every sound one time that its loaded
+    soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
+    soundsystem.setVolume(100)
+    soundsystem.play()
+    soundsystem.openStereoPlayer(EXPLOSION_SOUND, 44100)
+    soundsystem.setVolume(100)
+    soundsystem.play()
+    soundsystem.openStereoPlayer(ITEMCOLLECT_SOUND, 44100)
+    soundsystem.setVolume(100)
+    soundsystem.play()
+    delay(1000)
+    soundsystem.setVolume(1000)
     return
 
 def main():
     print("executed main")
     print(platform.python_version())
-    setStatusText("Willkommen in {}".format(TITLE))
-    generatePlayer()
+    
     if PROD:
         soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
         soundsystem.setVolume(600)
         soundsystem.playLoop()
+
+    setStatusText("Willkommen in {}".format(TITLE))
+    generatePlayer()
     
 def onExit():
     print("exiting")
-    try:
-        soundsystem.stop()
-    except e:
-        print("no sound played")
+    #try:
+    #    soundsystem.stop()
+    #except e:
+    #    print("no sound played")
     System.exit(0)
     
 def generatePlayer():

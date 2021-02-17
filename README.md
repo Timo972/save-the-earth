@@ -15,7 +15,7 @@
  - [ ] implement heart system
  - [ ] create start menu
  - [ ] create loading screen
- - [ ] implement preloading of sounds
+ - [x] implement preloading of sounds
  - [ ] create timer with time survived
  - [ ] multiply asteriods spawn rate with time survived
  - [ ] add some "bosses" with custom design, like carrot head or 5head
