@@ -50,7 +50,10 @@ ITEM_IMAGE = None
 BUBBLE_IMAGE = None
 STARTBTN_IMAGE = None
 SETTINGBTN_IMAGE = None
+BACKBTN_IMAGE = None
 LOADING_IMAEG = getImage("images/loading.png")
+
+NUMBER_IMAGES = None
 
 BACKGROUND_SOUND = None
 EXPLOSION_SOUND = None
@@ -58,6 +61,8 @@ ITEMCOLLECT_SOUND = None
 
 EXPLOSION_EFFECT = None
 ITEMCOLLECT_EFFECT = None
+
+HUD_CLICK_TIMEOUT = 0.3 # in seconds
 
 ITEM_INVINCIBLE_TIME = 2 # in seconds
 
@@ -89,6 +94,8 @@ class Key(Enum):
     Space = 32
 
 hudPage = 0
+justClicked = time.clock()
+
 
 def loadSound(fileName):
     url = io.File(fileName).toURL()
@@ -108,6 +115,8 @@ def init():
     global LOADING_IMAEG
     global STARTBTN_IMAGE
     global SETTINGBTN_IMAGE
+    global BACKBTN_IMAGE
+    global NUMBER_IMAGES
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -135,6 +144,12 @@ def init():
     BUBBLE_IMAGE = getImage("images/bubble_small.png")
     STARTBTN_IMAGE = getImage("images/start-btn-small.png")
     SETTINGBTN_IMAGE = getImage("images/btn-settings.png")
+    BACKBTN_IMAGE = getImage("images/btn-back.png")
+
+    NUMBER_IMAGES = []
+    for i in range(9):
+        img = getImage("images/number_{}.png".format(i))
+        NUMBER_IMAGES.append(img)
     
     #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
     #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
@@ -169,7 +184,12 @@ def preloadSounds():
 def openSettings():
     global hudPage
     print("open settings")
-    hudPage = 1
+    hudPage = Hud.settings
+
+def openMain():
+    global hudPage
+    print("open main")
+    hudPage = Hud.main
 
 def startGame():
     global inGame
@@ -216,6 +236,9 @@ def main():
 
     Button(Hud.main, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
     Button(Hud.main, SETTINGBTN_IMAGE, None, None, Vector2(450, 50), openSettings)
+
+    Button(Hud.settings, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
+    Button(Hud.scoreboard, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
 
     Button(Hud.gameover, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
 
@@ -437,11 +460,13 @@ def checkAbilities():
             clearItemAffect(ability[0])
 
 def processHudMouseClick():
+    global justClicked
     for button in Button.all:
         # print("checking if button is focused")
         # print("MousePos: {0} {1}".format(mousePos.x, mousePos.y))
         # print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
-        if button.focused(hudPage, mousePos):
+        if button.focused(hudPage, mousePos) and justClicked + HUD_CLICK_TIMEOUT < time.clock():
+            justClicked = time.clock()
             button.onClick()
 
 def processKeyboardHit():
@@ -451,7 +476,8 @@ def processKeyboardHit():
         key = getKeyCode()
         print("keyboard hit {}".format(key))
         if (key == Key.Back or key == Key.Del) and not inGame:
-            hudPage = Hud.main
+            # hudPage = Hud.main
+            openMain()
         elif key == Key.Enter and not inGame:
             if hudPage == Hud.main:
                 startGame()
