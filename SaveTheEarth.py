@@ -74,6 +74,7 @@ mouseDown = False
 
 isInvincible = 0
 inGame = False
+isPaused = False
 # 0 is main menu 1 is settings 2 is scoreboard
 class Hud(Enum):
     main = 0
@@ -85,6 +86,7 @@ class Key(Enum):
     Back = 27
     Del = 8
     Enter = 10
+    Space = 32
 
 hudPage = 0
 
@@ -354,7 +356,7 @@ def addItem():
     gameObjectList.append(itemObject)
     
 def drawPlayer():
-    if mouseDown and playerObject.valid:
+    if mouseDown and playerObject.valid and not isPaused:
         angle = getAngle(mousePos, playerObject.pos)    
         playerObject.pos = getPositionInFront(playerObject.pos, PLAYER_SPEED, angle)
         
@@ -374,7 +376,7 @@ def drawPlayer():
 
 def drawGameObjects():
     for obj in gameObjectList:
-        if not obj.static and playerObject.valid:
+        if not obj.static and playerObject.valid and not isPaused:
             angle = getAngle(obj.end, obj.pos)    
             obj.pos = getPositionInFront(obj.pos, OBJECT_SPEED, angle)
             
@@ -444,19 +446,23 @@ def processHudMouseClick():
 
 def processKeyboardHit():
     global hudPage
+    global isPaused
     if kbhit():
         key = getKeyCode()
         print("keyboard hit {}".format(key))
-        if key == Key.Back or key == Key.Del:
+        if (key == Key.Back or key == Key.Del) and not inGame:
             hudPage = Hud.main
-        elif key == Key.Enter:
+        elif key == Key.Enter and not inGame:
             if hudPage == Hud.main:
                 startGame()
+        elif key == Key.Space and inGame:
+            isPaused = not isPaused
+            print("paused game: {}".format(isPaused))
         
 def tick():
     clear()
 
-    if playerObject.valid and inGame:
+    if playerObject.valid and inGame and not isPaused:
         checkAbilities()
         addGameObject()
         addItem()
@@ -470,7 +476,8 @@ def tick():
         drawEffects()
     else:
         drawHud()
-        processKeyboardHit()
+        
+    processKeyboardHit()
 
     repaint()
 
