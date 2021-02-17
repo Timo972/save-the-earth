@@ -32,7 +32,7 @@ OBJECT_SPAWN_TIME = 5 # in seconds
 OBJECT_SPEED = 1
 OBJECT_SPEED_MULTIPLIER = 1.1
 
-ITEM_SPAWN_TIME = 5 # in seconds
+ITEM_SPAWN_TIME = 15 # in seconds
 ITEM_SIZE = 15
 
 OBJECT_IMAGE = None
@@ -161,7 +161,7 @@ def diePlayer(gameObject):
     print("setted effect pos")
     EXPLOSION_EFFECT.draw()
     EXPLOSION_EFFECT.play()
-    playerObject = False
+    playerObject.destroy()
     if PROD:
         if soundsystem.isPlayerValid() and soundsystem.isPlaying():
             soundsystem.stop()
@@ -258,7 +258,7 @@ def addItem():
     gameObjectList.append(itemObject)
     
 def drawPlayer():
-    if mouseDown:
+    if mouseDown and playerObject.valid:
         angle = getAngle(mousePos, playerObject.pos)    
         playerObject.pos = getPositionInFront(playerObject.pos, PLAYER_SPEED, angle)
         
@@ -278,7 +278,7 @@ def drawPlayer():
 
 def drawGameObjects():
     for obj in gameObjectList:
-        if not obj.static:
+        if not obj.static and playerObject.valid:
             angle = getAngle(obj.end, obj.pos)    
             obj.pos = getPositionInFront(obj.pos, OBJECT_SPEED, angle)
             
@@ -297,6 +297,9 @@ def drawGameObjects():
             move(obj.end.x, obj.end.y)
             setColor(obj.color)
             fillCircle(obj.size)
+
+        if not playerObject.valid:
+            continue
         
         if distance(playerObject.pos, obj.pos) < playerObject.size + obj.size:
             if obj.type == 1:
@@ -326,15 +329,15 @@ def checkAbilities():
         
 def tick():
     clear()
-    checkAbilities()
-    addGameObject()
-    addItem()
+    if playerObject.valid:
+        checkAbilities()
+        addGameObject()
+        addItem()
     image(BACKGROUND_IMAGE, MIN_X, MAX_Y)
     #image(BACKGROUND_IMAGE, 0, 0)
     drawPlayer()
     drawGameObjects()
     repaint()
-
 
 def mousePressed(x,y):
     global mousePos

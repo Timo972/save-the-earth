@@ -8,6 +8,7 @@ class GameObject:
     # color str
     # static bool
     # pos Vector2
+    # valid bool
     def __init__(self, otype, start, end, size, color, image = None, static = False, flickering = False, data = None):
         self.type = otype
         self.size = size
@@ -21,6 +22,7 @@ class GameObject:
         self.image = image
         print("created game object with pos: {0}, {1}".format(start.x,start.y))
         self.pos = start
+        self.valid = True
 
     def setFlickering(self, enabled):
         self.flickering = enabled
@@ -33,4 +35,7 @@ class GameObject:
             image(self.image, self.pos.x - self.size, self.pos.y + self.size)
         else:
             fillCircle(self.color)
+
+    def destroy(self):
+        self.valid = False
     
