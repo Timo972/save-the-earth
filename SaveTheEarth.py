@@ -81,6 +81,11 @@ class Hud(Enum):
     scoreboard = 2
     gameover = 3
 
+class Key(Enum):
+    Back = 27
+    Del = 8
+    Enter = 10
+
 hudPage = 0
 
 def loadSound(fileName):
@@ -182,9 +187,9 @@ def main():
 
     # window setup
     if PROD or STANDALONE:
-        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased, closeClicked=onExit)
+        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mouseMoved = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased, closeClicked=onExit)
     else:
-        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased)
+        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mouseMoved = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased)
     enableRepaint(False)
     window(0, MAX_X, MAX_Y, 0)
 
@@ -207,10 +212,10 @@ def main():
     
     # create play button
 
-    Button(Hud.main, STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
-    Button(Hud.main, SETTINGBTN_IMAGE, None, Vector2(450, 50), openSettings)
+    Button(Hud.main, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
+    Button(Hud.main, SETTINGBTN_IMAGE, None, None, Vector2(450, 50), openSettings)
 
-    Button(Hud.gameover, STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
+    Button(Hud.gameover, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
 
     #inGame = True
     
@@ -419,7 +424,7 @@ def drawEffects():
 
 def drawHud():
     for button in Button.all:
-        button.draw(hudPage)
+        button.draw(hudPage, mousePos)
 
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
@@ -436,6 +441,17 @@ def processHudMouseClick():
         # print("ButtonPos: {0} {1}".format(button.pos.x, button.pos.y))
         if button.focused(hudPage, mousePos):
             button.onClick()
+
+def processKeyboardHit():
+    global hudPage
+    if kbhit():
+        key = getKeyCode()
+        print("keyboard hit {}".format(key))
+        if key == Key.Back or key == Key.Del:
+            hudPage = Hud.main
+        elif key == Key.Enter:
+            if hudPage == Hud.main:
+                startGame()
         
 def tick():
     clear()
@@ -454,6 +470,7 @@ def tick():
         drawEffects()
     else:
         drawHud()
+        processKeyboardHit()
 
     repaint()
 

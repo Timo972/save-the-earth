@@ -2,9 +2,10 @@ from gpanel import *
 
 class Button:
     all = []
-    def __init__(self, hudPage, image, text, pos, onClick):
+    def __init__(self, hudPage, image, hoverImage, text, pos, onClick):
         self.hudPage = hudPage
         self.image = image
+        self.hoverImage = hoverImage
         self.pos = pos
         self.onClick = onClick
         self.text = text
@@ -14,7 +15,7 @@ class Button:
 
         Button.all.append(self)
     
-    def draw(self, hud):
+    def draw(self, hud, mousePos):
         if self.hudPage != hud:
             return
         
@@ -22,7 +23,13 @@ class Button:
             move(self.pos.x, self.pos.y)
             text(self.text)
 
-        image(self.image, self.pos.x, self.pos.y)
+        #print("mouse: x: {0} y: {1}".format(mousePos.x, mousePos.y))
+
+        if not self.hoverImage is None and self.focused(hud, mousePos):
+            #print("hovering button")
+            image(self.hoverImage, self.pos.x, self.pos.y)
+        else:
+            image(self.image, self.pos.x, self.pos.y)
 
         # DEBUG
 
