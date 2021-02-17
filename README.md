@@ -9,7 +9,7 @@
  3. Execute run.bat
 
 ## TODO
- - [ ] refactor player drawing to use new obj.draw feature
+ - [x] refactor player drawing to use new obj.draw feature
  - [ ] implement flickering object possibility
  - [ ] create ranklist
  - [ ] implement heart system

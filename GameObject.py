@@ -34,7 +34,7 @@ class GameObject:
         if not self.image is None:
             image(self.image, self.pos.x - self.size, self.pos.y + self.size)
         else:
-            fillCircle(self.color)
+            fillCircle(self.size)
 
     def destroy(self):
         self.valid = False

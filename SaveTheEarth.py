@@ -234,7 +234,7 @@ def generatePlayer():
     global playerObject
     start = Vector2(MAX_X/2,MAX_Y/2)
     end = Vector2(0, 0)
-    playerObject = GameObject(0, start, end, PLAYER_SIZE, PLAYER_COLOR)
+    playerObject = GameObject(0, start, end, PLAYER_SIZE, PLAYER_COLOR, PLAYER_IMAGE)
 
 def drawScreenEffect(effect, drawTime):
     effectList.append([effect, drawTime + time.clock()])
@@ -270,7 +270,6 @@ def setInvincible(invincible):
 def clearItemAffect(item):
     for i, o in enumerate(playerAblilities):
         if o[0] == item:
-            print(playerAblilities[i])
             del playerAblilities[i]
             break
 
@@ -360,10 +359,11 @@ def drawPlayer():
         angle = getAngle(mousePos, playerObject.pos)    
         playerObject.pos = getPositionInFront(playerObject.pos, PLAYER_SPEED, angle)
         
-    move(playerObject.pos.x, playerObject.pos.y)
-    setColor(PLAYER_COLOR)
-    fillCircle(PLAYER_SIZE)
-    image(PLAYER_IMAGE, playerObject.pos.x - 15, playerObject.pos.y + 15)
+    # move(playerObject.pos.x, playerObject.pos.y)
+    # setColor(PLAYER_COLOR)
+    # fillCircle(PLAYER_SIZE)
+    # image(PLAYER_IMAGE, playerObject.pos.x - 15, playerObject.pos.y + 15)
+    playerObject.draw()
 
     if hasItemEffect(1):
         image(BUBBLE_IMAGE, playerObject.pos.x - 17, playerObject.pos.y + 17)
