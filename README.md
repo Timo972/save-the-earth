@@ -1,7 +1,7 @@
 # Save The Earth TigerJython Game
 
-## Credits
- - [Vane](https://discordapp.com/users/429608458233577474 "Discord Profile") (helped out with designs)
+## Projekt für Profilkurs Informatik Ursulaschule
+Von Timo Beckmann
 
 ## Run the game (only windows)
  1. Clone this repo
