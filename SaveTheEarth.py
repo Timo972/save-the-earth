@@ -17,9 +17,12 @@ from GameObject import *
 from VectorMath import *
 from Effect import *
 from Button import *
+from ScoreboardItem import *
+from File import *
 
 # functionen
 from Timer import *
+from Letters import loadAlphabet
 
 DEBUG = False
 PROD = True
@@ -56,10 +59,9 @@ BUBBLE_IMAGE = None
 PAUSE_IMAGE = None
 STARTBTN_IMAGE = None
 SETTINGBTN_IMAGE = None
+GLOBEBTN_IMAGE = None
 BACKBTN_IMAGE = None
 LOADING_IMAGE = getImage("images/loading.png")
-
-NUMBER_IMAGES = None
 
 BACKGROUND_SOUND = None
 EXPLOSION_SOUND = None
@@ -84,6 +86,9 @@ lastAddedItem = 0
 mousePos = Vector2(0,0)
 mouseDown = False
 
+scoreboardData = None
+
+userName = None
 isInvincible = 0
 inGame = False
 isPaused = False
@@ -122,9 +127,9 @@ def init():
     global PAUSE_IMAGE
     global LOADING_IMAGE
     global STARTBTN_IMAGE
+    global GLOBEBTN_IMAGE
     global SETTINGBTN_IMAGE
     global BACKBTN_IMAGE
-    global NUMBER_IMAGES
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -152,16 +157,14 @@ def init():
     ITEM_IMAGE = getImage("images/item.png")
     BUBBLE_IMAGE = getImage("images/bubble_small.png")
     STARTBTN_IMAGE = getImage("images/start-btn-small.png")
+    GLOBEBTN_IMAGE = getImage("images/btn-globe.png")
     SETTINGBTN_IMAGE = getImage("images/btn-settings.png")
     BACKBTN_IMAGE = getImage("images/btn-back.png")
     PAUSE_IMAGE = getImage("images/pause.png")
 
-    NUMBER_IMAGES = []
-    for i in range(10):
-        print("loading number {}".format(i))
-        img = getImage("images/number_{}.png".format(i))
-        NUMBER_IMAGES.append(img)
-    NUMBER_IMAGES.append(getImage("images/dp.png"))
+    ScoreboardItem.defaultImg = getImage("images/scoreboard-item.png")
+
+    
     
     #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
     #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
@@ -171,10 +174,28 @@ def init():
     ITEMCOLLECT_SOUND = loadSound("sounds/itemcollect.WAV")
     ITEMUSED_SOUND = loadSound("sounds/gotshot.WAV")
 
+    Button.HOVER_SOUND = loadSound("sounds/hud_hover.wav")
+
     EXPLOSION_EFFECT = Effect(None, EXPLOSION_IMAGE, EXPLOSION_SOUND)
     ITEMCOLLECT_EFFECT = Effect(None, None, ITEMCOLLECT_SOUND)
 
+    loadAlphabet()
+
     return True
+
+def openScoreboard():
+    global hudPage
+    global scoreboardData
+
+    print("open scoreboard")
+    scoreboardData = readJson("scoreboard.json")
+
+    if scoreboardData is None:
+        ScoreboardItem(1, "Nibba#")
+        ScoreboardItem(2, "Kek")
+        ScoreboardItem(3, "Hs")
+
+    hudPage = Hud.scoreboard
 
 def openSettings():
     global hudPage
@@ -184,12 +205,16 @@ def openSettings():
 def openMain():
     global hudPage
     print("open main")
+
+    ScoreboardItem.all = []
+
     hudPage = Hud.main
 
 def startGame():
     global inGame
     global playerObject
     global gameObjectList
+    global userName
     
     gameObjectList = []
     playerObject.pos = Vector2(250, 250)
@@ -226,6 +251,7 @@ def main():
 
     Button(Hud.main, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
     Button(Hud.main, SETTINGBTN_IMAGE, None, None, Vector2(450, 50), openSettings)
+    Button(Hud.main, GLOBEBTN_IMAGE, None, None, Vector2(450, 100), openScoreboard)
 
     Button(Hud.settings, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
     Button(Hud.scoreboard, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
@@ -434,6 +460,9 @@ def drawEffects():
 def drawHud():
     for button in Button.all:
         button.draw(hudPage, mousePos)
+    if hudPage == Hud.scoreboard:
+        for sbItem in ScoreboardItem.all:
+            sbItem.draw()
 
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
@@ -485,7 +514,7 @@ def tick():
         drawPlayer()
         drawGameObjects()
         drawEffects()
-        drawTimer(NUMBER_IMAGES)
+        drawTimer()
     else:
         drawHud()
 

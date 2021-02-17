@@ -1,8 +1,10 @@
+from Letters import getNumImg
 from gpanel import *
 import time
 import math
 
-TOP_OFFSET = 70
+TOP_OFFSET = 50
+LEFT_OFFSET = 40
 
 timerPausedAt = 0
 timerStartedAt = 0
@@ -17,7 +19,7 @@ def beginTimer():
     timerEnabled = True
 
 """Draws the time diff between beginTimer() and now in human readable format"""
-def drawTimer(numberImages):
+def drawTimer():
     #global survivedTime
     if not timerEnabled:
         return
@@ -39,27 +41,27 @@ def drawTimer(numberImages):
 
     amountToDraw = (len(data) * 3)  - 1
 
-    leftOffset = 500 - 50 * amountToDraw
+    leftOffset = 500 - LEFT_OFFSET * amountToDraw
 
     for idx, num in enumerate(data):
         if num == 0 and idx > 0:
             continue
 
         if idx > 0:
-            image(numberImages[10], leftOffset, TOP_OFFSET)
-            leftOffset += 50
+            image(getNumImg(10), leftOffset, TOP_OFFSET)
+            leftOffset += LEFT_OFFSET
 
         if num > 9:
             for num_mem in str(num):
                 if num_mem == '.':
                     return
-                image(numberImages[int(num_mem)], leftOffset, TOP_OFFSET)
-                leftOffset += 50
+                image(getNumImg(int(num_mem)), leftOffset, TOP_OFFSET)
+                leftOffset += LEFT_OFFSET
         else:
-            image(numberImages[0], leftOffset, TOP_OFFSET)
-            leftOffset += 50
-            image(numberImages[int(num)], leftOffset, TOP_OFFSET)
-            leftOffset += 50
+            image(getNumImg(0), leftOffset, TOP_OFFSET)
+            leftOffset += LEFT_OFFSET
+            image(getNumImg(int(num)), leftOffset, TOP_OFFSET)
+            leftOffset += LEFT_OFFSET
 
         
 

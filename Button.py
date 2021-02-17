@@ -2,6 +2,7 @@ from gpanel import *
 
 class Button:
     all = []
+    HOVER_SOUND = None
     def __init__(self, hudPage, image, hoverImage, text, pos, onClick):
         self.hudPage = hudPage
         self.image = image
@@ -9,6 +10,7 @@ class Button:
         self.pos = pos
         self.onClick = onClick
         self.text = text
+        self.hovering = False
 
         self.imgWidth = self.image.getWidth() - self.image.getWidth() / 5 #- 30
         self.imgHeight = self.image.getHeight() - self.image.getHeight() / 5 #- 10
@@ -25,10 +27,23 @@ class Button:
 
         #print("mouse: x: {0} y: {1}".format(mousePos.x, mousePos.y))
 
-        if not self.hoverImage is None and self.focused(hud, mousePos):
+        focused = self.focused(hud, mousePos)
+
+        if focused:
             #print("hovering button")
-            image(self.hoverImage, self.pos.x, self.pos.y)
+            if not self.hovering and not Button.HOVER_SOUND is None:
+                Button.HOVER_SOUND.play()
+
+            self.hovering = True
+
+            if not self.hoverImage is None:
+                image(self.hoverImage, self.pos.x, self.pos.y)
+            else:
+                image(self.image, self.pos.x, self.pos.y)
+            
         else:
+            self.hovering = False
+
             image(self.image, self.pos.x, self.pos.y)
 
         # DEBUG
