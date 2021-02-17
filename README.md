@@ -22,6 +22,6 @@
  - [ ] implement game over screen
  - [ ] add syringe item for one time immunity with longer reset time
  - [ ] implement some custom buttons with hover effect for menus
-
+ - [ ] improve hud navigation, include key events (f.e. ESC to go to main)
  ## Features that are "useless"
  - [ ] global scoreboard with golang iris as api backend
