@@ -18,8 +18,10 @@ class Effect:
         
     def play(self):
         if not self.sound is None:
-            soundsystem.openStereoPlayer(self.sound, 44100)
-            soundsystem.play()
+            #soundsystem.openStereoPlayer(self.sound, 44100)
+            #soundsystem.play()
+            self.sound.play()
+
     def draw(self):
         if not self.image is None and not self.pos is None and not self.next is None:
             if isinstance(self.next, int) and isinstance(self.image, list):
@@ -29,6 +31,7 @@ class Effect:
                     self.next = 0
             else:
                 image(self.image, self.pos.x, self.pos.y)
+                
     def setPos(self, pos):
         self.pos = pos
         

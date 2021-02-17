@@ -1,9 +1,13 @@
 from java.lang import System
 from gpanel import *
 from random import *
-import soundsystem
 import time
 import platform
+
+# better sound api than soundsystem
+#from javax.sound.sampled import AudioInputStream, AudioFormat, DataLine, AudioSystem, Clip
+from java.applet.Applet import newAudioClip
+from java import io
 
 from Vector2 import *
 from GameObject import *
@@ -11,7 +15,7 @@ from VectorMath import *
 from Effect import *
 
 DEBUG = False
-PROD = False
+PROD = True
 STANDALONE = True
 
 MAX_X = 500
@@ -54,6 +58,7 @@ ITEMCOLLECT_EFFECT = None
 ITEM_INVINCIBLE_TIME = 2 # in seconds
 
 gameObjectList = []
+effectList = []
 playerObject = False
 playerAblilities = []
 
@@ -64,7 +69,14 @@ mousePos = Vector2(0,0)
 mouseDown = False
 
 isInvincible = 0
-inGame = True
+inGame = False
+
+def loadSound(fileName):
+    url = io.File(fileName).toURL()
+    print("loading sound {0}, url: {1}".format(fileName,url))
+    audio = newAudioClip(url)
+    print("loaded sound {}".format(fileName))
+    return audio
 
 def init():
     global OBJECT_IMAGE
@@ -101,9 +113,12 @@ def init():
     ITEM_IMAGE = getImage("images/item.png")
     BUBBLE_IMAGE = getImage("images/bubble_small.png")
     
-    BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
-    EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
-    ITEMCOLLECT_SOUND = soundsystem.getWavStereo("sounds/itemcollect.WAV")
+    #BACKGROUND_SOUND = soundsystem.getWavStereo("sounds/sound.WAV")
+    #EXPLOSION_SOUND = soundsystem.getWavStereo("sounds/explosion.wav")
+    #ITEMCOLLECT_SOUND = soundsystem.getWavStereo("sounds/itemcollect.WAV")
+    BACKGROUND_SOUND = loadSound("sounds/sound.WAV")
+    EXPLOSION_SOUND = loadSound("sounds/explosion.wav")
+    ITEMCOLLECT_SOUND = loadSound("sounds/itemcollect.WAV")
 
     EXPLOSION_EFFECT = Effect(None, EXPLOSION_IMAGE, EXPLOSION_SOUND)
     ITEMCOLLECT_EFFECT = Effect(None, None, ITEMCOLLECT_SOUND)
@@ -114,33 +129,52 @@ def init():
 
 def preloadSounds():
     # TODO: set Volume to 0 and play every sound one time that its loaded
-    soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
-    soundsystem.setVolume(100)
-    soundsystem.play()
-    soundsystem.openStereoPlayer(EXPLOSION_SOUND, 44100)
-    soundsystem.setVolume(100)
-    soundsystem.play()
-    soundsystem.openStereoPlayer(ITEMCOLLECT_SOUND, 44100)
-    soundsystem.setVolume(100)
-    soundsystem.play()
+    BACKGROUND_SOUND.play()
+    #soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
+    #soundsystem.setVolume(100)
+    #soundsystem.play()
+    #soundsystem.openStereoPlayer(EXPLOSION_SOUND, 44100)
+    #soundsystem.setVolume(100)
+    #soundsystem.play()
+    #soundsystem.openStereoPlayer(ITEMCOLLECT_SOUND, 44100)
+    #soundsystem.setVolume(100)
+    #soundsystem.play()
     delay(1000)
-    soundsystem.setVolume(1000)
+    #soundsystem.setVolume(1000)
     return
 
 def main():
-    print("executed main")
-    print(platform.python_version())
-    
-    if PROD:
-        soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
-        soundsystem.setVolume(600)
-        soundsystem.playLoop()
+    global inGame
 
+    # window setup
+    if PROD or STANDALONE:
+        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased, closeClicked=onExit)
+    else:
+        makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased)
+    enableRepaint(False)
+    window(0, MAX_X, MAX_Y, 0)
+
+    # initialize -> load images and sounds
+    init()
+
+    print("Running {0} with python version {1}".format(TITLE, platform.python_version()))
+    
+    # if in production play background sound (anoying when developing)
+    #if PROD:
+    #    soundsystem.openStereoPlayer(BACKGROUND_SOUND, 44100)
+    #    soundsystem.setVolume(600)
+    #    soundsystem.playLoop()
+
+    BACKGROUND_SOUND.play()
+        
+    # start the game
     setStatusText("Willkommen in {}".format(TITLE))
     generatePlayer()
+    inGame = True
     
 def onExit():
     print("exiting")
+    # try except not working with soundsystem :C
     #try:
     #    soundsystem.stop()
     #except e:
@@ -153,22 +187,28 @@ def generatePlayer():
     end = Vector2(0, 0)
     playerObject = GameObject(0, start, end, PLAYER_SIZE, PLAYER_COLOR)
 
+def drawScreenEffect(effect, drawTime):
+    effectList.append([effect, drawTime + time.clock()])
+
 def diePlayer(gameObject):
     global playerObject
-    print("OnPlayerDie")
+
     collisionPos = getMidPos(playerObject.pos, gameObject.pos)
+
     EXPLOSION_EFFECT.setPos(Vector2(collisionPos.x - 10, collisionPos.y + 10))
-    print("setted effect pos")
-    EXPLOSION_EFFECT.draw()
+    drawScreenEffect(EXPLOSION_EFFECT, 1)
     EXPLOSION_EFFECT.play()
     playerObject.destroy()
-    if PROD:
-        if soundsystem.isPlayerValid() and soundsystem.isPlaying():
-            soundsystem.stop()
+
+    #if PROD:
+    #    if soundsystem.isPlayerValid() and soundsystem.isPlaying():
+    #        soundsystem.stop()
+
     setStatusText("Die Erde wurde zerstoert")
 
 def setInvincible(invincible):
     global isInvincible
+
     if invincible:
         isInvincible = time.clock()
     else:
@@ -250,11 +290,16 @@ def addGameObject():
     
 def addItem():
     global lastAddedItem
+
     if lastAddedItem + ITEM_SPAWN_TIME > time.clock():
         return
+
     lastAddedItem = time.clock()
+    itemEffect = randrange(0, 1)
+
     randPos = Vector2(randrange(MIN_X, MAX_X), randrange(MIN_Y, MAX_X))
-    itemObject = GameObject(2, randPos, None, ITEM_SIZE, "yellow", ITEM_IMAGE, True, False, 1)
+    itemObject = GameObject(2, randPos, None, ITEM_SIZE, "yellow", ITEM_IMAGE, True, False, itemEffect)
+
     gameObjectList.append(itemObject)
     
 def drawPlayer():
@@ -319,6 +364,14 @@ def drawGameObjects():
             if distToEnd < 1 + obj.size:
                 deleteGameObject(obj)
 
+def drawEffects():
+    for i, effect in enumerate(effectList):
+        if effect[1] > time.clock():
+            effect[0].draw()
+        else:
+            del effectList[i]
+
+
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
         setInvincible(False)
@@ -337,6 +390,7 @@ def tick():
     #image(BACKGROUND_IMAGE, 0, 0)
     drawPlayer()
     drawGameObjects()
+    drawEffects()
     repaint()
 
 def mousePressed(x,y):
@@ -352,15 +406,6 @@ def mouseReleased(x,y):
 def mouseDrag(x, y):
     global mousePos
     mousePos = Vector2(x, y)
-
-if PROD or STANDALONE:
-    makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased, closeClicked=onExit)
-else:
-    makeGPanel(TITLE, MIN_X, MAX_X, MIN_Y, MAX_Y, mouseDragged = mouseDrag, mousePressed = mousePressed, mouseReleased = mouseReleased)
-enableRepaint(False)
-window(0, MAX_X, MAX_Y, 0)
-
-init()
 
 main()
 
