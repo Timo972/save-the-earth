@@ -79,6 +79,7 @@ class Hud(Enum):
     main = 0
     settings = 1
     scoreboard = 2
+    gameover = 3
 
 hudPage = 0
 
@@ -165,8 +166,16 @@ def openSettings():
 
 def startGame():
     global inGame
+    global playerObject
+    global gameObjectList
+    
+    gameObjectList = []
+    playerObject.pos = Vector2(250, 250)
+    playerObject.valid = True
+
     setStatusText("{} gestartet".format(TITLE))
     inGame = True
+    print("started game")
 
 def main():
     #global inGame
@@ -201,6 +210,8 @@ def main():
     Button(Hud.main, STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
     Button(Hud.main, SETTINGBTN_IMAGE, None, Vector2(450, 50), openSettings)
 
+    Button(Hud.gameover, STARTBTN_IMAGE, None, Vector2(250 - 60, 250 + 100), startGame)
+
     #inGame = True
     
 def onExit():
@@ -222,7 +233,8 @@ def drawScreenEffect(effect, drawTime):
     effectList.append([effect, drawTime + time.clock()])
 
 def diePlayer(gameObject):
-    global playerObject
+    global hudPage
+    global inGame
 
     collisionPos = getMidPos(playerObject.pos, gameObject.pos)
 
@@ -234,6 +246,9 @@ def diePlayer(gameObject):
     #if PROD:
     #    if soundsystem.isPlayerValid() and soundsystem.isPlaying():
     #        soundsystem.stop()
+
+    hudPage = Hud.gameover
+    inGame = False
 
     setStatusText("Die Erde wurde zerstoert")
 
@@ -298,7 +313,7 @@ def generateObject():
     # TODO: randomize size between MAX_OBJECT_SIZE and MIN_OBJECT_SIZE
     size = 20
     
-    colorIdx = randint(0, len(OBJECT_COLORS))
+    colorIdx = randint(0, len(OBJECT_COLORS)) - 1
     color = OBJECT_COLORS[colorIdx]
 
     start = Vector2(startX, startY)
@@ -460,6 +475,7 @@ def mouseDrag(x, y):
 
 main()
 
-while isinstance(playerObject, GameObject):
+while True:
     delay(20)
-    tick()
+    if isinstance(playerObject, GameObject):
+        tick()
