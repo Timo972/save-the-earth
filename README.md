@@ -14,7 +14,7 @@
  - [ ] create ranklist
  - [ ] implement heart system
  - [ ] create start menu
- - [ ] create loading screen
+ - [x] create loading screen
  - [x] implement preloading of sounds
  - [ ] create timer with time survived
  - [ ] multiply asteriods spawn rate with time survived

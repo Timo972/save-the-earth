@@ -42,6 +42,7 @@ EXPLOSION_IMAGE = None
 #BACKGROUND_IMAGE = None
 ITEM_IMAGE = None
 BUBBLE_IMAGE = None
+LOADING_IMAEG = getImage("images/loading.png")
 
 BACKGROUND_SOUND = None
 EXPLOSION_SOUND = None
@@ -73,6 +74,7 @@ def init():
     #global BACKGROUND_IMAGE
     global ITEM_IMAGE
     global BUBBLE_IMAGE
+    global LOADING_IMAEG
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -86,6 +88,8 @@ def init():
 
     move(50,50)
     text("Lade {}...".format(TITLE))
+
+    image(LOADING_IMAEG, -200, 700)
 
     repaint()
 
