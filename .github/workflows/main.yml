@@ -29,7 +29,7 @@ jobs:
       - name: Include version file into build
         shell: bash
         run: |
-            cat <<EOF >build/server/version.json
+            cat <<EOF >version.json
             {
               "version": "${{ steps.version.outputs.VERSION }}"
             }
@@ -108,7 +108,9 @@ jobs:
         - name: Deploy to Staging server
           uses: garygrossgarten/github-action-scp@release
           with:
-            local: ./SaveTheEarth.zip
+            local: |
+              ./SaveTheEarth.zip
+              ./version.json
             remote: ${{ secrets.REMOTE_PATH }}
             host: ${{ secrets.REMOTE_HOST }}
             username: ${{ secrets.REMOTE_USER }}
