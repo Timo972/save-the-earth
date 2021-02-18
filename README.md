@@ -11,9 +11,9 @@
 ## TODO
  - [x] refactor player drawing to use new obj.draw feature
  - [x] implement flickering object possibility
- - [ ] create ranklist
+ - [x] create ranklist
  - [ ] implement heart system
- - [ ] create start menu
+ - [x] create start menu
  - [x] create loading screen
  - [x] implement preloading of sounds
  - [x] create timer with time survived
@@ -31,3 +31,6 @@
  ## Features that are planned when school project is finished
  - [ ] global scoreboard with golang iris as api backend
  - [ ] use JFrame panel
+
+ ## Bugs
+ - [ ] fix scoreboard item design (time is always displayed at wrong positions)
