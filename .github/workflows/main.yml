@@ -1,0 +1,130 @@
+name: Bundle and Release
+
+on:
+  create:
+    tags:
+      - 'v*.*.*'
+      
+  workflow_dispatch:
+
+
+jobs:
+
+  upload-artifact:
+    name: Bundle
+    runs-on: windows-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Extract version
+        id: version
+        shell: bash
+        run: |
+            TAG=${GITHUB_REF/refs\/tags\//}
+            echo ::set-output name=BRANCH::${TAG/\/*}
+            echo ::set-output name=VERSION::${TAG/*\/}
+            
+      - name: Include version file into build
+        shell: bash
+        run: |
+            cat <<EOF >version.json
+            {
+              "version": "${{ steps.version.outputs.VERSION }}"
+            }
+            
+      - name: Upload built script
+        uses: actions/upload-artifact@v2
+        with:
+            name: save-the-earth
+            path: |
+              ./
+              !.github
+              !.git
+              !scoreboard.json
+              !.vscode
+              !.gitignore
+              !README.md
+            if-no-files-found: error
+
+  release-gh:
+      name: Create Github Release
+      runs-on: windows-latest
+      needs: [upload-artifact]
+      
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v2
+          with:
+              name: save-the-earth
+              path: ./
+
+        - name: Zip artifacts
+          run: zip -r SaveTheEarth ./
+
+        - name: Extract version
+          id: version
+          shell: bash
+          run: |
+              TAG=${GITHUB_REF/refs\/tags\//}
+              echo ::set-output name=BRANCH::${TAG/\/*}
+              echo ::set-output name=VERSION::${TAG/*\/}
+              
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@v1
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+              tag_name: ${{ github.ref }}
+              release_name: Release ${{ steps.version.outputs.VERSION }}
+
+        - name: Upload artifacts to release
+          uses: actions/upload-release-asset@v1
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+              upload_url: ${{ steps.create_release.outputs.upload_url }}
+              asset_path: ./SaveTheEarth.zip
+              asset_name: SaveTheEarth.zip
+              asset_content_type: application/zip
+        
+  upload-cdn:
+      name: Upload Version to CDN
+      runs-on: windows-latest
+      needs: [upload-artifact]
+      
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v2
+          with:
+              name: save-the-earth
+              path: ./
+
+        - name: Zip artifacts
+          run: zip -r SaveTheEarth ./
+          
+        - name: Deploy to Staging server
+          uses: garygrossgarten/github-action-scp@release
+          with:
+            local: |
+              ./SaveTheEarth.zip
+              ./version.json
+            remote: ${{ secrets.REMOTE_PATH }}
+            host: ${{ secrets.REMOTE_HOST }}
+            username: ${{ secrets.REMOTE_USER }}
+            password: ${{ secrets.REMOTE_PASSWD }}
+          
+  delete-artifacts:
+      name: Delete artifacts
+      runs-on: ubuntu-latest
+      needs: [release-gh, upload-cdn]
+      if: ${{ always() }}
+      steps:
+          - name: Delete artifacts
+            uses: geekyeggo/delete-artifact@v1
+            with:
+                name: save-the-earth
+      
+      
