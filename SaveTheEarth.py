@@ -16,13 +16,16 @@ from Vector2 import *
 from GameObject import *
 from VectorMath import *
 from Effect import *
-from Button import *
 from ScoreboardItem import *
 from File import *
 
+# Hud Items
+from Button import *
+from TextInput import *
+
 # functionen
 from Timer import *
-from Letters import loadAlphabet
+from Letters import hasLetter, loadAlphabet
 
 DEBUG = False
 PROD = True
@@ -85,6 +88,7 @@ lastAddedItem = 0
 
 mousePos = Vector2(0,0)
 mouseDown = False
+activeInput = None
 
 scoreboardData = None
 
@@ -104,6 +108,35 @@ class Key(Enum):
     Del = 8
     Enter = 10
     Space = 32
+
+KEYCODES = {
+    65: 'a',
+    66: 'b',
+    67: 'c',
+    68: 'd',
+    69: 'e',
+    70: 'f',
+    71: 'g',
+    72: 'h',
+    73: 'i',
+    74: 'j',
+    75: 'k',
+    76: 'l',
+    77: 'm',
+    78: 'n',
+    79: 'o',
+    80: 'p',
+    81: 'q',
+    82: 'r',
+    83: 's',
+    84: 't',
+    85: 'u',
+    86: 'v',
+    87: 'w',
+    88: 'x',
+    89: 'y',
+    90: 'z',
+}
 
 hudPage = 0
 justClicked = time.clock()
@@ -163,6 +196,7 @@ def init():
     PAUSE_IMAGE = getImage("images/pause.png")
 
     ScoreboardItem.defaultImg = getImage("images/scoreboard-item.png")
+    TextInput.defaultImage = getImage("images/scoreboard-item.png")
 
     
     
@@ -250,7 +284,11 @@ def main():
     # initialize -> load images and sounds
     init()
 
-    print("Running {0} with python version {1}".format(TITLE, platform.python_version()))
+    version = readJson("version.json")
+
+    version = version if not version is None else "dev"
+
+    print("Running {0} version {1} with python version {2}".format(TITLE, version, platform.python_version()))
 
     BACKGROUND_SOUND.play()
         
@@ -263,6 +301,8 @@ def main():
     Button(Hud.main, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
     Button(Hud.main, SETTINGBTN_IMAGE, None, None, Vector2(450, 50), openSettings)
     Button(Hud.main, GLOBEBTN_IMAGE, None, None, Vector2(450, 100), openScoreboard)
+
+    TextInput(Hud.settings, Vector2(60, 350))
 
     Button(Hud.settings, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
     Button(Hud.scoreboard, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
@@ -471,6 +511,8 @@ def drawEffects():
 def drawHud():
     for button in Button.all:
         button.draw(hudPage, mousePos)
+    for tinput in TextInput.all:
+        tinput.draw(hudPage, mousePos)
     if hudPage == Hud.scoreboard:
         for sbItem in ScoreboardItem.all:
             sbItem.draw()
@@ -485,18 +527,57 @@ def checkAbilities():
 
 def processHudMouseClick():
     global justClicked
+    global activeInput
+    if not activeInput is None:
+        activeInput.active = False
+        activeInput = None
     for button in Button.all:
         if button.focused(hudPage, mousePos) and justClicked + HUD_CLICK_TIMEOUT < time.clock():
             justClicked = time.clock()
             button.onClick()
+            return
+    for tinput in TextInput.all:
+        if tinput.focused(hudPage, mousePos) and justClicked + HUD_CLICK_TIMEOUT < time.clock():
+            justClicked = time.clock()
+            activeInput = tinput
+            tinput.active = True
+            return
 
 def processKeyboardHit():
     global hudPage
     global isPaused
+    global activeInput
     
     if kbhit():
+
         key = getKeyCode()
+
+        if not activeInput is None:
+
+            if key == Key.Back or key == Key.Enter:
+                activeInput.active = False
+                activeInput = None
+                return
+            elif key == Key.Del:
+                activeInput.deleteLast()
+                return
+
+            if not key in KEYCODES:
+                return
+
+            letter = KEYCODES[key]
+
+            print("keyboard hit {} in input box".format(letter))
+
+            if hasLetter(letter, 50):
+                activeInput.appendInput(letter or '#')
+            else:
+                Button.HOVER_SOUND.play()
+
+            return
+        
         print("keyboard hit {}".format(key))
+
         if (key == Key.Back or key == Key.Del) and not inGame:
             # hudPage = Hud.main
             openMain()
