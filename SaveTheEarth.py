@@ -91,6 +91,7 @@ mouseDown = False
 activeInput = None
 
 scoreboardData = None
+userNameInput = None
 
 userName = None
 isInvincible = 0
@@ -249,9 +250,14 @@ def openSettings():
 
 def openMain():
     global hudPage
+    global userName
     print("open main")
 
     ScoreboardItem.all = []
+    userName = userNameInput.getInput()
+
+    print("username: {}".format(userName))
+    setStatusText("Willkommen in {0}, dein Benutzername: {1}".format(TITLE, userName.upper()))
 
     hudPage = Hud.main
 
@@ -271,6 +277,8 @@ def startGame():
     print("started game")
 
 def main():
+    global userNameInput
+    global userName
     #global inGame
 
     # window setup
@@ -288,12 +296,15 @@ def main():
 
     version = version if not version is None else "dev"
 
+    settings = readJson("settings.json")
+
+    userName = settings["username"] if not settings is None else "none"
+
     print("Running {0} version {1} with python version {2}".format(TITLE, version, platform.python_version()))
 
     BACKGROUND_SOUND.play()
         
     # start the game
-    setStatusText("Willkommen in {}".format(TITLE))
     generatePlayer()
     
     # create play button
@@ -302,17 +313,22 @@ def main():
     Button(Hud.main, SETTINGBTN_IMAGE, None, None, Vector2(450, 50), openSettings)
     Button(Hud.main, GLOBEBTN_IMAGE, None, None, Vector2(450, 100), openScoreboard)
 
-    TextInput(Hud.settings, Vector2(60, 350))
+    userNameInput = TextInput(Hud.settings, Vector2(60, 350), userName)
 
     Button(Hud.settings, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
     Button(Hud.scoreboard, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
 
     Button(Hud.gameover, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
 
+    openMain()
+
     #inGame = True
     
 def onExit():
     print("exiting")
+    writeJson("settings.json", {
+        "username": userName
+    })
     System.exit(0)
     
 def generatePlayer():
