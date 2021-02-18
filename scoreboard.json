@@ -1,16 +1,1 @@
-{
-    "scoreboard": [
-        {
-            "username": "Kek",
-            "time": 16
-        },
-        {
-            "username": "Nibba",
-            "time": 16
-        },
-        {
-            "username":"Hs",
-            "time": 10
-        }
-    ]
-}
+[{"time": 16, "username": "Kek"}, {"time": 16, "username": "Nibba"}, {"time": 10, "username": "Hs"}, {"time": 7939.1605, "username": "timo"}]

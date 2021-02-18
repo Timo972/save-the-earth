@@ -226,10 +226,9 @@ def init():
 
 def openScoreboard():
     global hudPage
-    global scoreboardData
+    #global scoreboardData
 
     print("open scoreboard")
-    scoreboardData = readJson("scoreboard.json")
 
     if scoreboardData is None:
         ScoreboardItem(1, "Nibba#")
@@ -238,7 +237,7 @@ def openScoreboard():
     else:
 
         try:
-            sortedScoreboard = list(sorted(scoreboardData["scoreboard"], key=lambda a: a["time"], reverse=True))
+            sortedScoreboard = list(sorted(scoreboardData, key=lambda a: a["time"], reverse=True))
         except e:
             print("could not load scoreboard {}".format(e))
             return
@@ -287,6 +286,7 @@ def startGame():
 def main():
     global userNameInput
     global userName
+    global scoreboardData
     #global inGame
 
     # window setup
@@ -309,6 +309,8 @@ def main():
     userName = settings["username"] if not settings is None else "none"
 
     print("Running {0} version {1} with python version {2}".format(TITLE, version, platform.python_version()))
+
+    scoreboardData = readJson("scoreboard.json") or []
 
     BACKGROUND_SOUND.play()
         
@@ -337,6 +339,7 @@ def onExit():
     writeJson("settings.json", {
         "username": userName
     })
+    writeJson("scoreboard.json", scoreboardData)
     System.exit(0)
     
 def generatePlayer():
@@ -351,6 +354,7 @@ def drawScreenEffect(effect, drawTime):
 def diePlayer(gameObject):
     global hudPage
     global inGame
+    global scoreboardData
 
     collisionPos = getMidPos(playerObject.pos, gameObject.pos)
 
@@ -360,6 +364,18 @@ def diePlayer(gameObject):
     playerObject.destroy()
 
     survivedTime = endTimer()
+
+    filteredScores = list(filter(lambda x: x["username"] == userName, scoreboardData))
+
+    if len(filteredScores) > 0:
+        filteredScores[0]["time"] = survivedTime
+    else:
+        scoreboardData.append({
+            "username": userName,
+            "time": survivedTime
+        })
+
+    print(scoreboardData)
 
     hudPage = Hud.gameover
     inGame = False
