@@ -39,6 +39,8 @@ def drawTimer():
 
     data = list(filter(lambda item: item > 0, data))
 
+    #amountToDraw = (len(filter(lambda item: item > 0, data)) * 3)  - 1
+
     amountToDraw = (len(data) * 3)  - 1
 
     leftOffset = 500 - LEFT_OFFSET * amountToDraw

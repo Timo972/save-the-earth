@@ -194,6 +194,17 @@ def openScoreboard():
         ScoreboardItem(1, "Nibba#")
         ScoreboardItem(2, "Kek")
         ScoreboardItem(3, "Hs")
+    else:
+
+        try:
+            sortedScoreboard = list(sorted(scoreboardData["scoreboard"], key=lambda a: a["time"], reverse=True))
+        except e:
+            print("could not load scoreboard {}".format(e))
+            return
+
+        for idx, user in enumerate(sortedScoreboard):
+            ScoreboardItem(idx+1, user["username"], user["time"])
+
 
     hudPage = Hud.scoreboard
 
