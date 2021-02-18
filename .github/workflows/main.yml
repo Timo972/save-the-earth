@@ -104,13 +104,17 @@ jobs:
 
         - name: Zip artifacts
           run: zip -r SaveTheEarth ./
+
+        - name: Prepare upload folder
+          run: |
+            mkdir upload
+            mv SaveTheEarth.zip ./upload
+            mv version.json ./upload
           
         - name: Deploy to Staging server
           uses: garygrossgarten/github-action-scp@release
           with:
-            local: |
-              ./SaveTheEarth.zip
-              ./version.json
+            local: ./upload
             remote: ${{ secrets.REMOTE_PATH }}
             host: ${{ secrets.REMOTE_HOST }}
             username: ${{ secrets.REMOTE_USER }}
