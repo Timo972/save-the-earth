@@ -61,10 +61,12 @@ ITEM_IMAGE = None
 BUBBLE_IMAGE = None
 PAUSE_IMAGE = None
 STARTBTN_IMAGE = None
+RESTARTBTN_IMAGE = None
 SETTINGBTN_IMAGE = None
 GLOBEBTN_IMAGE = None
 BACKBTN_IMAGE = None
 LOADING_IMAGE = getImage("images/loading.png")
+GAMEOVER_IMAGE = None
 
 BACKGROUND_SOUND = None
 EXPLOSION_SOUND = None
@@ -164,6 +166,8 @@ def init():
     global GLOBEBTN_IMAGE
     global SETTINGBTN_IMAGE
     global BACKBTN_IMAGE
+    global RESTARTBTN_IMAGE
+    global GAMEOVER_IMAGE
 
     global BACKGROUND_SOUND
     global EXPLOSION_SOUND
@@ -195,6 +199,8 @@ def init():
     SETTINGBTN_IMAGE = getImage("images/btn-settings.png")
     BACKBTN_IMAGE = getImage("images/btn-back.png")
     PAUSE_IMAGE = getImage("images/pause.png")
+    GAMEOVER_IMAGE = getImage("images/game-over.png")
+    RESTARTBTN_IMAGE = getImage("images/restart-btn.png")
 
     ScoreboardItem.defaultImg = getImage("images/scoreboard-item.png")
     TextInput.defaultImage = getImage("images/scoreboard-item.png")
@@ -318,7 +324,7 @@ def main():
     Button(Hud.settings, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
     Button(Hud.scoreboard, BACKBTN_IMAGE, None, None, Vector2(450, 50), openMain)
 
-    Button(Hud.gameover, STARTBTN_IMAGE, None, None, Vector2(250 - 60, 250 + 100), startGame)
+    Button(Hud.gameover, RESTARTBTN_IMAGE, None, None, Vector2(250 - 80, 250 + 130), startGame)
 
     openMain()
 
@@ -532,6 +538,8 @@ def drawHud():
     if hudPage == Hud.scoreboard:
         for sbItem in ScoreboardItem.all:
             sbItem.draw()
+    elif hudPage == Hud.gameover:
+        image(GAMEOVER_IMAGE, 250 - 150, 250 + 70)
 
 def checkAbilities():
     if isInvincible > 0 and isInvincible + ITEM_INVINCIBLE_TIME < time.clock():
