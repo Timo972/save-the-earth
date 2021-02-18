@@ -244,6 +244,8 @@ def openScoreboard():
             return
 
         for idx, user in enumerate(sortedScoreboard):
+            if idx > 7:
+                break
             ScoreboardItem(idx+1, user["username"], user["time"])
 
 
