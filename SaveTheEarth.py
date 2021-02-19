@@ -3,8 +3,13 @@ from java.lang import System
 from gpanel import *
 from random import *
 from enum import Enum
+import sys
 import time
 import platform
+
+sys.path.insert(1, './src/util')
+sys.path.insert(1, './src/classes')
+sys.path.insert(1, './src/components')
 
 # better sound api than soundsystem
 #from javax.sound.sampled import AudioInputStream, AudioFormat, DataLine, AudioSystem, Clip
@@ -13,19 +18,21 @@ from java import io
 
 # eigene Klassen
 from Vector2 import *
-from GameObject import *
-from VectorMath import *
-from Effect import *
-from ScoreboardItem import *
-from File import *
 
-# Hud Items
+# Hud / Visual Items
 from Button import *
 from TextInput import *
+from ScoreboardItem import *
+from GameObject import *
+from Effect import *
 
 # functionen
 from Timer import *
 from Letters import hasLetter, loadAlphabet
+from VectorMath import *
+from File import *
+import Update
+
 
 DEBUG = False
 PROD = True
@@ -299,6 +306,9 @@ def main():
 
     # initialize -> load images and sounds
     init()
+
+    # if Update.check():
+    #     Update.update()
 
     version = readJson("version.json")
 

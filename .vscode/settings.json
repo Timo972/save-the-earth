@@ -2,7 +2,7 @@
     "files.exclude": {
         "*.properties": true,
         "**/.tjbackup": true,
-        "*$py.class": true,
+        "**/*$py.class": true,
         "ajython.jar": true
     },
     "python.pythonPath": "C:\\Users\\Timo Beckmann\\.windows-build-tools\\python27\\python.exe",
