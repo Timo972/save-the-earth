@@ -1,4 +1,3 @@
-
 import json
 
 from File import *
@@ -11,9 +10,13 @@ def check():
     print("checking for update")
     url = "https://cdn.timosengine.cf/save-the-earth/version.json"
 
-    fetchUrl("cdn.timosengine.cf", 80, "/save-the-earth/version.json")
+    #fetchUrl("cdn.timosengine.cf", 80, "/save-the-earth/version.json")
+    responseStr = fetchUrl(url)
 
     print("fetched url")
+
+    if responseStr is None:
+        return False
 
     response = json.loads(responseStr)
 

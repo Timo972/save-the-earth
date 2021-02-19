@@ -154,9 +154,9 @@ justClicked = time.clock()
 
 def loadSound(fileName):
     url = io.File(fileName).toURL()
-    print("loading sound {0}, url: {1}".format(fileName,url))
+    #print("loading sound {0}, url: {1}".format(fileName,url))
     audio = newAudioClip(url)
-    print("loaded sound {}".format(fileName))
+    #print("loaded sound {}".format(fileName))
     return audio
 
 def init():
@@ -307,8 +307,8 @@ def main():
     # initialize -> load images and sounds
     init()
 
-    # if Update.check():
-    #     Update.update()
+    if Update.check():
+        Update.update()
 
     version = readJson("version.json")
 
