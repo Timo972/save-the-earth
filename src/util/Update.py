@@ -4,8 +4,6 @@ from File import *
 from Version import *
 from Fetch import *
 
-
-
 def check():
     print("checking for update")
     url = "https://cdn.timosengine.cf/save-the-earth/version.json"
